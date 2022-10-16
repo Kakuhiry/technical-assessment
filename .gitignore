@@ -1,0 +1,11 @@
+# Dependencies
+node_modules
+
+# Configuration
+.env
+nginx.conf
+terraform.*
+infrastructure/.terraform
+
+# Auth
+infrastructure/auth
