@@ -76,12 +76,12 @@ jobs:
       env:
         NGINX_CONF: ${{ steps.nginx.outputs.nginx_conf }}
 
-    - run: "ls"
+    - run: "ls -a"
     - run: "gcloud auth configure-docker us.gcr.io --quiet"
     - name: Build and push
       uses: docker/build-push-action@v3
       with:
-        push: false
+        push: true
         tags: us.gcr.io/serious-dialect-365703/assessment:${{steps.version_new.outputs.prop}}
     - name: Commit new version
       run: |
