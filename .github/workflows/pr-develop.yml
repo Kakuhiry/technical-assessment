@@ -3,7 +3,7 @@ name: Develop pull request
 on:
   pull_request:
     branches:
-      "master"
+      "main"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -43,31 +43,31 @@ jobs:
 
 
   
-  docker-build:
-    needs: changes
-    if: ${{ !github.event.pull_request.draft }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-    strategy:
-      fail-fast: false
-      matrix:
-        apps: ${{ fromJSON(needs.changes.outputs.apps) }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: get version
-        id: version
-        uses: notiz-dev/github-action-json-property@release
-        with:
-          path: "./apps/${{ matrix.apps }}/package.json"
-          prop_path: "version"
-      - name: Build and push
-        uses: ./.github/workflows/reusable/container/build
-        with:
-          dockerfile_path: ./Dockerfile.production
-          service_name: ${{ matrix.apps }}
-          tag_suffix: -beta
-          version: ${{ steps.version.outputs.prop }}
-          project_id: ${{ secrets.GCP_PROJECT_ID_PROD }}
-          push: false
+  # docker-build:
+  #   needs: changes
+  #   if: ${{ !github.event.pull_request.draft }}
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: 'read'
+  #     id-token: 'write'
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       apps: ${{ fromJSON(needs.changes.outputs.apps) }}
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: get version
+  #       id: version
+  #       uses: notiz-dev/github-action-json-property@release
+  #       with:
+  #         path: "./apps/${{ matrix.apps }}/package.json"
+  #         prop_path: "version"
+  #     - name: Build and push
+  #       uses: ./.github/workflows/reusable/container/build
+  #       with:
+  #         dockerfile_path: ./Dockerfile.production
+  #         service_name: ${{ matrix.apps }}
+  #         tag_suffix: -beta
+  #         version: ${{ steps.version.outputs.prop }}
+  #         project_id: ${{ secrets.GCP_PROJECT_ID_PROD }}
+  #         push: false
