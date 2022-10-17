@@ -6,6 +6,4 @@ node_modules
 nginx.conf
 terraform.*
 infrastructure/.terraform
-
-# Auth
 infrastructure/utils
