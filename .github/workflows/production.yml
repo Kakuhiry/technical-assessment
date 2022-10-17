@@ -54,7 +54,7 @@ jobs:
         path: "./package.json"
         prop_path: "version"
     - name: update docker-compose
-      run: perl -pi.bak -e "s/"${{needs.build.outputs.old_version}}"/"${{needs.build.outputs.new_version}}"/g" docker-compose.yml
+      run: perl -pi.bak -e "s/"${{steps.version_old.outputs.prop}}"/"${{steps.version_new.outputs.prop}}"/g" docker-compose.yml
     - id: secret
       uses: 'google-github-actions/get-secretmanager-secrets@v0'
       with:
