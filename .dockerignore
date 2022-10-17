@@ -1,0 +1,7 @@
+
+# Config files
+infrastructure
+node_modules
+.github
+.vscode
+.eslintrc.js
