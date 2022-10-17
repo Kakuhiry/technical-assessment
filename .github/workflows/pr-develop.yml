@@ -1,4 +1,4 @@
-name: Develop pull request
+name: Test - pull request to develop
 
 on:
   pull_request:
