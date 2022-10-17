@@ -113,5 +113,5 @@ jobs:
         key: ${{ secrets.KEY }}
         script: |
           cd technical-assessment
-          perl -pi.bak -e "s/"$prev_version"/"$new_version"/g" docker-compose.yml
+          perl -pi.bak -e "s/"${{needs.build.outputs.old_version}}"/"${{needs.build.outputs.new_version}}"/g" docker-compose.yml
           sudo docker-compose up --scale app=2 -d
