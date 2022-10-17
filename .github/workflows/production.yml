@@ -79,11 +79,11 @@ jobs:
         push: true
         tags: us.gcr.io/serious-dialect-365703/assessment:${{steps.version_new.outputs.prop}}
     - name: Commit new version
-        run: |
-          git pull
-          git add package.json
-          git commit -m "release:${{steps.version_new.outputs.prop}}"
-          git push
+      run: |
+        git pull
+        git add package.json
+        git commit -m "release:${{steps.version_new.outputs.prop}}"
+        git push
 jobs:
   deploy:
     - id: url
