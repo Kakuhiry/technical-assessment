@@ -1,0 +1,92 @@
+name: Deploy - Master
+on:
+  push:
+    branches:
+      - "test-branch"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{steps.version_new.outputs.prop}}
+      old_version: ${{steps.version_old.outputs.prop}}
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+    - uses: actions/checkout@v3
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GCP_AUTH_SA }}'
+    - name: Get version
+      id: version_old
+      uses: notiz-dev/github-action-json-property@release
+      with:
+        path: "./package.json"
+        prop_path: "version"
+    - name: Bump version major
+      if: contains( github.event.head_commit.message, 'BREAKING_CHANGES!:')
+      id: major
+      run: |
+        npm version major
+    - name: Bump version minor
+      if: contains( github.event.head_commit.message, 'feat:') && steps.major.outcome == 'skipped'
+      id: minor
+      run: |
+        npm version minor
+    - name: Bump version patch
+      if: contains( github.event.head_commit.message, 'fix:') && steps.major.outcome == 'skipped' && steps.minor.outcome == 'skipped'
+      run: |
+        npm version patch
+    - name: Get version
+      id: version_new
+      uses: notiz-dev/github-action-json-property@release
+      with:
+        path: "./package.json"
+        prop_path: "version"
+    - id: secret
+      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      with:
+        secrets: |-
+          env:${{ secret.GCP_PROJECT_NAME }}/env
+    - run: 'echo "$ENV" > .env'
+      shell: bash
+      env:
+        ENV: ${{ steps.secret.outputs.env }}
+
+    - id: nginx
+      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      with:
+        secrets: |-
+          nginx_conf:${{ secret.GCP_PROJECT_NAME }}/nginx_conf
+    - run: 'echo "$NGINX_CONF" > nginx.conf'
+      shell: bash
+      env:
+        NGINX_CONF: ${{ steps.nginx.outputs.nginx_conf }}
+    - run: "gcloud auth configure-docker us.gcr.io --quiet"
+    - name: Build and push
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: us.gcr.io/serious-dialect-365703/assessment:${{steps.version_new.outputs.prop}}
+jobs:
+  deploy:
+    - id: url
+      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      with:
+        secrets: |-
+          host:${{ secret.GCP_PROJECT_NAME }}/my-secret
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      needs:
+        - "build"
+      with:
+        host: ${{ steps.url.outputs.host }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        script: |
+          sed -i.bak 's,${{needs.build.outputs.old_version}},${{needs.build.outputs.new_version}},g' ~/technical-assessment/docker-compose.yml
+          sudo docker-compose -f technical-assessment/docker-compose.yml up --scale app=2 -d
