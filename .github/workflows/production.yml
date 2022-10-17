@@ -61,20 +61,23 @@ jobs:
       with:
         secrets: |-
           env:${{ secrets.GCP_PROJECT_NAME }}/env
-    - run: 'echo "$ENV" > .env'
-      shell: bash
-      env:
-        ENV: ${{ steps.secret.outputs.env }}
-
+    
     - id: nginx
       uses: 'google-github-actions/get-secretmanager-secrets@v0'
       with:
         secrets: |-
           nginx_conf:${{ secrets.GCP_PROJECT_NAME }}/nginx_conf
+
+
+    - run: 'echo "$ENV" > .env'
+      shell: bash
+      env:
+        ENV: ${{ secrets.ENV }}
+
     - run: 'echo "$NGINX_CONF" > nginx.conf'
       shell: bash
       env:
-        NGINX_CONF: ${{ steps.nginx.outputs.nginx_conf }}
+        NGINX_CONF: ${{ secrets.NGINX_CONF }}
 
     - run: "ls -a"
     - run: "gcloud auth configure-docker us.gcr.io --quiet"
