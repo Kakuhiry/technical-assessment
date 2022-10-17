@@ -2,7 +2,7 @@ version: "3"
 
 services:
   app:
-    build: .
+    image: us.gcr.io/serious-dialect-365703/assessment:1.0.0
     deploy:
       replicas: 2
     volumes:
