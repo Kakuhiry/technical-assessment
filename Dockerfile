@@ -4,7 +4,5 @@ COPY package.json ./
 RUN npm install
 COPY ./ ./
 
-ENV .env
-ENV nginx.conf
 
 CMD ["node", "app.js"]
