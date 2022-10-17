@@ -57,7 +57,7 @@ jobs:
       uses: 'google-github-actions/get-secretmanager-secrets@v0'
       with:
         secrets: |-
-          env:${{ secret.GCP_PROJECT_NAME }}/env
+          env:${{ secrets.GCP_PROJECT_NAME }}/env
     - run: 'echo "$ENV" > .env'
       shell: bash
       env:
@@ -67,7 +67,7 @@ jobs:
       uses: 'google-github-actions/get-secretmanager-secrets@v0'
       with:
         secrets: |-
-          nginx_conf:${{ secret.GCP_PROJECT_NAME }}/nginx_conf
+          nginx_conf:${{ secrets.GCP_PROJECT_NAME }}/nginx_conf
     - run: 'echo "$NGINX_CONF" > nginx.conf'
       shell: bash
       env:
@@ -91,7 +91,7 @@ jobs:
       uses: 'google-github-actions/get-secretmanager-secrets@v0'
       with:
         secrets: |-
-          host:${{ secret.GCP_PROJECT_NAME }}/my-secret
+          host:${{ secrets.GCP_PROJECT_NAME }}/my-secret
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@master
       needs:
